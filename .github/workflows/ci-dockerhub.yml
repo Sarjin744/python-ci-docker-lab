@@ -26,10 +26,9 @@ jobs:
           pip install pytest
 
       - name: Run tests
-        # This ENV block fixes the "ModuleNotFoundError: No module named 'app'"
         env:
           PYTHONPATH: .
-        run: pytest -q
+        run: python -m pytest -q
 
       - name: Docker meta
         id: meta
