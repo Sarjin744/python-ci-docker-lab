@@ -23,13 +23,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest  # Ensures pytest is available even if not in requirements.txt
+          pip install pytest
 
       - name: Run tests
-        # The 'export' command tells Python to look in the root folder for app.py
-        run: |
-          export PYTHONPATH=$PYTHONPATH:.
-          pytest -q
+        # This ENV block fixes the "ModuleNotFoundError: No module named 'app'"
+        env:
+          PYTHONPATH: .
+        run: pytest -q
 
       - name: Docker meta
         id: meta
@@ -37,7 +37,7 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/python-ci-lab
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
             type=sha,prefix=sha-,format=short
             type=ref,event=tag
 
@@ -48,7 +48,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        # This step will fail if you haven't added Secrets to GitHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
